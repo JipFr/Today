@@ -1,0 +1,13 @@
+{
+	"name": "Today for Makerlog",
+	"short_name": "Today",
+	"lang": "en",
+	"display": "standalone",
+	"theme_color": " #00B77A",
+	"background_color": "#ffffff",
+	"start_url": "/",
+	"icons": [{
+		"sizes": "1000x1000",
+		"src": "apple-touch-icon.png"
+	}]
+}

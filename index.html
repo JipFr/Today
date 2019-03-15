@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-111004523-5"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-111004523-5');
+		</script>
+		
+		<title>Today for Makerlog</title>
+		<link rel="manifest" href="manifest.json">
+		<!-- Apple stuff. -->
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="mobile-web-app-capable" content="yes">
+
+		<!-- -->
+		<link rel="apple-touch-icon" href="apple-touch-icon.png">
+		<meta name="theme-color" content="#00B77A">
+		<meta charset="utf-8">
+		
+		<link rel="apple-touch-startup-image" href="launch.png">
+				
+		<!-- Basic stuff -->
+		<link rel="stylesheet" href="style.css">
+		<link rel="icon" href="icon-big-green.png">
+		<meta name="description" content="Today for Makerlog is a simplified Makerlog interface with minimum distraction. Designed for your productivity.">
+		<meta name="keywords" content="Today for Makerlog">
+		<!-- This is supposed to help with rich preview. -->
+		<meta name="og:description" content="Today for Makerlog is a simplified Makerlog interface with minimum distraction. Designed for your productivity.">
+		<meta name="og:title" content="Today for Makerlog">
+		<meta name="og:image" content="apple-touch-icon.png">
+		<!-- Viewport -->
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
+		<!-- Twitter stuff -->
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:site" content="@jipfr" />
+		<meta name="twitter:creator" content="@jipfr" />
+		<meta name="twitter:title" content="Today for Makerlog">
+		<meta name="twitter:description" content="Today for Makerlog is Makerlog, simplified." />
+		<meta name="twitter:image:src" content="https://today.jipfr.nl/apple-touch-icon.png" />
+	</head>
+	<body data-theme="light">
+		<script>
+			updateTheme();
+			function updateTheme() {
+				if(localStorage.getItem("force-theme")) {
+					document.body.setAttribute("data-theme", localStorage.getItem("force-theme"));
+				}
+			}
+		</script>
+		<header></header>
+		<div class="behindHeader"></div>
+		<div class="containers">
+			<div class="container main">
+				<div class="cardDiv">
+					<div class="moreCardsDiv" data-cardID="0">
+						<div class="mainCardWrapper">
+							<div class="card mainCard">
+								<div class="profile">
+									<div class="header"></div>
+									<div class="profile_lower">
+										<div class="lowerContent">
+											<a href="#" class="toProfileAnchor">
+												<img alt="Profile picture" class="profile_picture" src="blank.png" onerror="this.src = 'blank.png';">
+											</a>
+											<div class="settingsIcon" onclick="openSettings()">
+												<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--main)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-settings"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+											</div>
+										</div>
+										<div class="bellDiv updateID" onclick="showNotification(this.getAttribute('data-cardid'));">
+											<div class="bell">
+												<div class="loading white"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="inputDiv updateID taskInputDiv">
+									<input type="text" class="inputInput updateID droppable" onkeyup='event.key == "Enter" ? newTask(this.value, !event.shiftKey, this.getAttribute("data-cardID")) : "";' ondrop="dropHandler(event);" placeholder="What have you done today?">
+									
+									<button class="todoButton updateID" onclick="newTask(document.querySelector(`[data-cardID='` + this.getAttribute('data-cardID') + `'] .inputInput`).value, false, this.getAttribute('data-cardID'))">
+										<svg aria-hidden="true" data-prefix="fas" data-icon="circle" class="svg-inline--fa fa-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path></svg>
+									</button>
+									
+									<button class="submitButton updateID" onclick="newTask(document.querySelector(`[data-cardID='` + this.getAttribute('data-cardID') + `'] .inputInput`).value, true, this.getAttribute('data-cardID'))">
+										+
+									</button>
+									<div class="attachmentDiv">
+
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="taskWrapperWrapper">
+							<div class="tasksWrapper">
+								<div class="card todayCard">
+									<h2>Today <span class="thin date">...</span></h2>
+									<div class="logDiv">
+										<div class="loading main"></div>
+									</div>
+								</div>
+								<div class="card yesterdayCard">
+									<h2>Yesterday <span class="thin date">...</span></h2>
+									<div class="logDiv">
+										<div class="loading main"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<footer>
+					<div class="footerPart">
+						<h4>Developers</h4>
+						<ul>
+							<li><a href="https://twitter.com/jipfr">Jip</a> (Today)</li>
+							<li><a href="https://twitter.com/matteing">Sergio</a> (Makerlog, Makerlog API)</li>
+						</ul>
+					</div>
+					<div class="footerPart">
+						<h4>Shortcuts</h4>
+						<ul>
+							<li>Press enter in the input field to submit a done task.</li>
+							<li>Hold shift and press enter in the input field to submit a to-do.</li>
+						</ul>
+					</div>
+					<div class="footerPart">
+						<h4>Pro tips</h4>
+						<ul>
+							<li>Hover over your profile picture, or tap in the center to open settings: here you can do a bunch of cool stuff. Showing comments, praise, customizing the mobile expierence, add more accounts, and more.</li>
+							<li>Drop an image onto the task input to add an image attachment!</li>
+						</ul>
+					</div>
+				</footer>
+			</div>
+		</div>
+	</body>
+	<script src="main.js"></script>
+	<script src="fun.js"></script>
+</html>
