@@ -1006,32 +1006,37 @@ function getNotifHTML(notifs) {
 
 		let par = `${notif.actor.first_name} ${notif.actor.last_name} ${notif.verb}`;
 		let key = notif.key;
-		if(key == "received_praise") {
-			par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/tasks/${notif.target.id}">${notif.verb}</a>`;
-		} else if(key == "followed") {
-			par = `${notif.actor.first_name} ${notif.actor.last_name} ${notif.verb}`;
-		} else if(key == "user_joined") {
-			par = `Welcome to Makerlog!`;
-		} else if(key == /*"thread_threaded"*/"thread_created") {
-			par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/discussions/${notif.target.slug}">${notif.verb}</a>`;
-		} else if(key == "thread_replied") {
-			par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/discussions/${notif.target.slug}">${notif.verb}</a>`;
-		} else if(key == "task_commented") {
-			if(notif.target) {
-				id = notif.target.id;
-			} else {
-				id = 1;
+		if(notif.target) {
+			if(key == "received_praise") {
+				par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/tasks/${notif.target.id}">${notif.verb}</a>`;
+			} else if(key == "followed") {
+				par = `${notif.actor.first_name} ${notif.actor.last_name} ${notif.verb}`;
+			} else if(key == "user_joined") {
+				par = `Welcome to Makerlog!`;
+			} else if(key == /*"thread_threaded"*/"thread_created") {
+				par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/discussions/${notif.target.slug}">${notif.verb}</a>`;
+			} else if(key == "thread_replied") {
+				par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/discussions/${notif.target.slug}">${notif.verb}</a>`;
+			} else if(key == "task_commented") {
+				if(notif.target) {
+					id = notif.target.id;
+				} else {
+					id = 1;
+				}
+				par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/tasks/${id}">${notif.verb}</a>`;
+			} else if(key == "product_launched") {
+				par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/products/${notif.target.slug}">${notif.verb}</a>`;
+			} else if(key == "product_created") {
+				par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/products/${notif.target.slug}">${notif.verb}</a>`;
+			} else if(key == "user_mentioned") {
+				par = `@${notif.actor.username} <a target="_blank" href="https://getmakerlog.com/@${notif.actor.username}">${notif.verb}</a>`;
+			} else if(key == "mention_discussion") {
+				par = `@${notif.actor.username} <a target="_blank" href="https://getmakerlog.com/@${notif.actor.username}">${notif.verb}</a>`;
 			}
-			par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/tasks/${id}">${notif.verb}</a>`;
-		} else if(key == "product_launched") {
-			par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/products/${notif.target.slug}">${notif.verb}</a>`;
-		} else if(key == "product_created") {
-			par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/products/${notif.target.slug}">${notif.verb}</a>`;
-		} else if(key == "user_mentioned") {
-			par = `@${notif.actor.username} <a target="_blank" href="https://getmakerlog.com/@${notif.actor.username}">${notif.verb}</a>`;
-		} else if(key == "mention_discussion") {
-			par = `@${notif.actor.username} <a target="_blank" href="https://getmakerlog.com/@${notif.actor.username}">${notif.verb}</a>`;
+		} else {
+			par = "Content deleted.";
 		}
+		
 
 		str += `
 			<div class="notification">
