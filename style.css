@@ -55,6 +55,9 @@ header {
 	justify-content: center; align-items: center;
 	z-index: 500;
 }
+.tasksWrapper .card {
+	width: calc(100vw - 40px - 20px);
+}
 @media screen and (max-width: 600px) {
 	/* Main stuff */
 	header, .behindHeader {
@@ -90,7 +93,7 @@ header {
 		align-items: center;
 		margin-top: 20px;
 	}
-	[data-setting-hide-header="true"] .bellDiv {
+	[data-setting-hide-header="true"] .profileRightDiv {
 		margin-top: 0;
 		transform: translateY(0);
 	}
@@ -100,6 +103,23 @@ header {
 	[data-setting-hide-header="true"] .profile_picture {
 		border: 0;
 		width: 60px; height: 60px;
+	}
+	[data-setting-compact-mode="true"] .card {
+		margin: 0; margin-bottom: 1px;
+		border-radius: 0;
+		width: calc(100vw - 40px);
+	}
+	[data-setting-compact-mode="true"] .mainCardWrapper {
+		width: 100% !important;
+	}
+	.overlayWrapper .card {
+		height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+		border-bottom: env(safe-area-inset-bottom) solid var(--main);
+		max-height: 100vh !important;
+		margin: 0 !important;
+	}
+	.notifDiv {
+		max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 100px) !important;
 	}
 }
 .behindHeader {
@@ -119,9 +139,6 @@ header {
 }
 .moreCardsDiv {
 	display: flex; flex-wrap: wrap; justify-content: center;
-}
-.tasksWrapper .card {
-	width: calc(100vw - 40px - 20px);
 }
 .card {
 	width: 420px;
@@ -151,7 +168,7 @@ header {
 	width: 100%;
 	height: calc(40pt - 40px);
 	padding: 20px;	
-	border: 1px solid var(--border);
+	border: 1px solid var(--border); border-right: 0;
 	border-radius: 0;
 	border-bottom-left-radius: 6px;
 	border-top-left-radius: 6px;
@@ -196,8 +213,13 @@ header {
 }
 .overlayWrapper .card {
 	max-height: calc(100vh - 80px);
-	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
+}
+.settingsCard {
+	overflow-y: auto;
+}
+.settingsCard button {
+	margin-bottom: 20px;
 }
 .settingsIcon {
 	position: absolute;
@@ -223,9 +245,10 @@ header {
 .profile_picture {
 	width: 100px;
 	height: 100px;
+	object-fit: cover;
 	/*border: 6px solid var(--card_bg);*/
 	box-shadow: 0 0 0 6px var(--card_bg);
-	margin-left: 6px;
+	/*margin-left: 6px;*/
 	border-radius: 50%;
 }
 
@@ -461,6 +484,7 @@ footer ul li {
 }
 .taskContentDiv {
 	margin-right: 8px;
+	word-break: break-word;
 }
 .praiseHand {
 	height: 22px; width: 22px;
@@ -541,6 +565,8 @@ footer ul li {
 	width: 100%;
 	display: flex; flex-wrap: wrap;
 	align-items: center;
+	display: grid;
+	grid-template-columns: auto 1fr auto;
 }
 .miniUserDiv img {
 	width: 30px; height: 30px;
@@ -554,8 +580,7 @@ footer ul li {
 	cursor: pointer;
 }
 .miniUserDiv p {
-	width: calc(100% - 30px - 10px);
-	max-width: 300px;
+	margin: 0;
 }
 .taskImage {
 	width: 100%;
@@ -661,18 +686,31 @@ footer ul li {
 	flex-wrap: nowrap;
 	justify-content: space-between;
 }
-.bellDiv {
-	display: none;
+.profileRightDiv {
+	width: calc(100% - 6px);
+	display: grid;
+	grid-template-columns: repeat(auto-fit, 40px);
+	justify-content: right;
+	grid-gap: 10px;
 	margin-right: 20px;
 	transform: translateY(calc(-50% - 1.5px));
 	height: 40px;
 	cursor: pointer;
 	position: relative;
 }
-[data-setting-display-notification-bell="true"] .bellDiv {
+.profileRightDiv .bell, .profileRightDiv .rld, .profileRightDiv .settings {
+	display: none;
+}
+[data-setting-display-notification-bell="true"] .profileRightDiv .bell {
 	display: flex;
 }
-.bell {
+[data-setting-display-rld="true"] .profileRightDiv .rld {
+	display: flex;
+}
+[data-setting-display-gear="true"] .profileRightDiv .settings {
+	display: flex;
+}
+.mini_btn {
 	width: 40px; height: 40px;
 	background: var(--main);
 	box-shadow: 0 0 0 3px var(--card_bg);
@@ -683,7 +721,7 @@ footer ul li {
 	background: var(--main);
 	box-shadow: 0 0 0 2px var(--card_bg); 
 }
-.bellExtra, .bell {
+.bellExtra, .mini_btn {
 	color: white;
 	border-radius: 50%;
 	display: flex; flex-wrap: nowrap;
@@ -715,8 +753,8 @@ footer ul li {
 .notifDiv {
 	padding: 0;
 	width: calc(100% + 20px);
-	max-height: 400px;
-	overflow-y: scroll;
+	max-height: calc(100vh - 120px - 20px);
+	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
 }
 .notification:nth-child(odd) {

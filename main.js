@@ -142,8 +142,9 @@ if(token !== "undefined" && token !== "null" && token && navigator.onLine) {
 		
 		document.querySelector(`[data-cardID="${whatUser}"] .inputInput`).value = "";
 
-		task = tasks + "";
-		
+		let task = tasks + "";
+		let data;
+
 		if(task.length > 0) {
 
 			data = new FormData();
@@ -539,6 +540,12 @@ function openSettings() {
 			</div>
 
 			<div class="setting">
+				<h2>General settings:</h2>
+				<div class="settingSpan"><input type="checkbox" ${getSetting("display-rld") == true ? "checked" : ""} data-setting="display-rld" onchange="alterSetting(this.getAttribute('data-setting'), this.checked)"> <span class="settingInnerSpan">Display reload button</span></div>
+				<div class="settingSpan"><input type="checkbox" ${getSetting("display-gear") == true ? "checked" : ""} data-setting="display-gear" onchange="alterSetting(this.getAttribute('data-setting'), this.checked)"> <span class="settingInnerSpan">Always show settings button</span></div>
+			</div>
+
+			<div class="setting">
 				<h2>Tasks:</h2>
 				<div class="settingSpan"><input type="checkbox" ${getSetting("display-praise") == true ? "checked" : ""} data-setting="display-praise" onchange="alterSetting(this.getAttribute('data-setting'), this.checked)"> <span class="settingInnerSpan">If any, display praise</span></div>
 				<div class="settingSpan"><input type="checkbox" ${getSetting("display-comments") == true ? "checked" : ""} data-setting="display-comments" onchange="alterSetting(this.getAttribute('data-setting'), this.checked)"> <span class="settingInnerSpan">If any, display comments</span></div>
@@ -555,13 +562,13 @@ function openSettings() {
 				<div class="settingSpan"><input type="checkbox" ${getSetting("center-profile") == true ? "checked" : ""} data-setting="center-profile" onchange="alterSetting(this.getAttribute('data-setting'), this.checked)"> <span class="settingInnerSpan">Center profile picture</span></div>
 				<div class="settingSpan"><input type="checkbox" ${getSetting("input-padding-right") == true ? "checked" : ""} data-setting="input-padding-right" onchange="alterSetting(this.getAttribute('data-setting'), this.checked)"> <span class="settingInnerSpan">Hide padding to the right of the input</span></div>
 				<div class="settingSpan"><input type="checkbox" ${getSetting("hide-header") == true ? "checked" : ""} data-setting="hide-header" onchange="alterSetting(this.getAttribute('data-setting'), this.checked)"> <span class="settingInnerSpan">Hide header image</span></div>
+				<div class="settingSpan"><input type="checkbox" ${getSetting("compact-mode") == true ? "checked" : ""} data-setting="compact-mode" onchange="alterSetting(this.getAttribute('data-setting'), this.checked)"> <span class="settingInnerSpan">Compact visuals</span></div>
 			</div>
 			<div class="setting">
 				<h2>Account(s):</h2>
 				${getAccountsCode()}
 				<button class="authButton" onclick='location.href = "https://api.getmakerlog.com/oauth/authorize/?client_id=aNUnFRAa6Y4NZP4GfX7BgVEFELNY2aVgRIInPmh2&scope=user:read%20tasks:read%20tasks:write&response_type=token"'>Add another account via Makerlog</button>
 			</div>
-
 		</div>
 	</div>
 	`
@@ -640,11 +647,13 @@ function getDate(url, token_type, token) {
 	});
 }
 
+const default_settings = {"dark_theme":false,"display-rld":true,"display-praise":true,"display-comments":true,"display-notification-bell":true,"display-notification-bell-count":true,"input-padding-right":true,"hide-header":true,"compact-mode":true}
+
 function alterSetting(setting, to) {
 	if(localStorage.getItem("settings")) {
 		settings = JSON.parse(localStorage.getItem("settings"));
 	} else {
-		settings = {}
+		settings = default_settings;
 	}
 	settings[setting] = to;
 	localStorage.setItem("settings", JSON.stringify(settings));
@@ -656,7 +665,7 @@ function updateSettings() {
 	if(localStorage.getItem("settings")) {
 		settings = JSON.parse(localStorage.getItem("settings"));
 	} else {
-		settings = {}
+		settings = default_settings;
 	}
 
 	Object.keys(settings).forEach(key => {
@@ -931,10 +940,10 @@ function updateNotifications(userID = "all") {
 				}
 			}
 
-			document.querySelectorAll(".bellDiv")[id].classList.remove("hasNotifs");	
+			document.querySelectorAll(".profileRightDiv")[id].classList.remove("hasNotifs");	
 			d.forEach(notif => {
 				if(!notif.read) {
-					document.querySelectorAll(".bellDiv")[id].classList.add("hasNotifs");	
+					document.querySelectorAll(".profileRightDiv")[id].classList.add("hasNotifs");	
 				}
 			});
 
@@ -952,15 +961,23 @@ function showNotification(id = 0) {
 
 	if(!document.querySelector(".bell").innerHTML.includes("bell")) return null;
 
-	token = JSON.parse(localStorage.getItem("token"))[id];
-	type = JSON.parse(localStorage.getItem("token_type"))[id];
+	if(id == null) {
+		id = 0;
+	}
+
+	let token = JSON.parse(localStorage.getItem("token"))[id];
+	let type = JSON.parse(localStorage.getItem("token_type"))[id];
 	f(`${API}notifications/mark_all_read/`, {
 		method: "OPTIONS",
 		headers: {
 			"Content-Type": "application/json;charset=UTF-8",
 			"Accept": "application/json, text/plain, */*",
-			"Authorization": token_type + " " + token
+			"Authorization": type + " " + token
 		}
+	}).then(d => {
+		document.querySelectorAll(".hasNotifs").forEach(el => {
+			el.classList.remove("hasNotifs");
+		});
 	});
 
 	notifications = notifs[Number(id)]; 
@@ -1029,9 +1046,9 @@ function getNotifHTML(notifs) {
 			} else if(key == "product_created") {
 				par = `${notif.actor.first_name} ${notif.actor.last_name} <a target="_blank" href="https://getmakerlog.com/products/${notif.target.slug}">${notif.verb}</a>`;
 			} else if(key == "user_mentioned") {
-				par = `@${notif.actor.username} <a target="_blank" href="https://getmakerlog.com/@${notif.actor.username}">${notif.verb}</a>`;
+				par = `@${notif.actor.username} <a target="_blank" href="https://getmakerlog.com/tasks/${notif.target.id}">${notif.verb}</a>`;
 			} else if(key == "mention_discussion") {
-				par = `@${notif.actor.username} <a target="_blank" href="https://getmakerlog.com/@${notif.actor.username}">${notif.verb}</a>`;
+				par = `@${notif.actor.username} <a target="_blank" href="https://getmakerlog.com/task/${notif.actor.username}">${notif.verb}</a>`;
 			}
 		} else {
 			par = "Content deleted.";
@@ -1057,3 +1074,4 @@ function getNotifHTML(notifs) {
 	});
 	return str;
 }
+
