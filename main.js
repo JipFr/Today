@@ -9,7 +9,7 @@ if(localStorage.getItem("token")) {
 		if ('serviceWorker' in navigator) {
 
 			window.addEventListener('load', function() {
-				navigator.serviceWorker.register('sw.js?obj=' + encodeURIComponent(toAdd)).then(reg => {}, err => {
+				navigator.serviceWorker.register("sw.js").then(reg => {}, err => {
 					console.log(err);
 				});
 			});
@@ -647,7 +647,11 @@ function getDate(url, token_type, token) {
 	});
 }
 
-const default_settings = {"dark_theme":false,"display-rld":true,"display-praise":true,"display-comments":true,"display-notification-bell":true,"display-notification-bell-count":true,"input-padding-right":true,"hide-header":true,"compact-mode":true}
+const default_settings = {"dark_theme":false,"display-rld":true,"display-praise":true,"display-comments":true,"display-notification-bell":true,"display-notification-bell-count":true,"input-padding-right":true,"hide-header":true,"compact-mode":true,"display-gear":true}
+
+if(!localStorage.getItem("settings")) {
+	localStorage.setItem("settings", JSON.stringify(default_settings));
+}
 
 function alterSetting(setting, to) {
 	if(localStorage.getItem("settings")) {
@@ -934,7 +938,7 @@ function updateNotifications(userID = "all") {
 			});
 			
 			let newArr = [];
-			for(let i = 0; i < 10; i++) {
+			for(let i = 0; i < d.length; i++) {
 				if(d[i]) {
 					newArr.push(d[i]);
 				}
