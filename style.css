@@ -8,7 +8,7 @@
 	--card_bg: white;
 	--border: rgba(0, 0, 0, 0.1);
 	--todo: #f39c12;
-	--link: blue;
+	--link: #00B77A;
 }
 [data-theme="dark"] {
 	--body: #1f1f1f;
@@ -480,7 +480,7 @@ footer ul li {
 	display: none;
 }
 [data-setting-display-praise="true"] .praiseBadge {
-	display: flex;
+	display: inline-flex;
 }
 .taskContentDiv {
 	margin-right: 8px;
@@ -784,6 +784,7 @@ footer ul li {
 	object-fit: cover;
 	border-radius: 50%;
 	border: 1px solid var(--border);
+	background: var(--text_secondary);
 }
 .notification a {
 	color: var(--text);
@@ -791,4 +792,23 @@ footer ul li {
 
 .bell .loading {
 	width: 15px; height: 15px;
+}
+
+.milestone {
+	padding: 20px;
+}
+.milestone .taskContentLeft {
+	width: 100%;
+}
+.milestone .secondary {
+	margin: 0;
+	font-weight: 100;
+	color: var(--text_secondary);
+}
+.milestone h2 {
+	margin: 5px 0;
+}
+.milestone .taskIcon svg {
+	color: #f39c12;
+	fill: #f39c12;
 }

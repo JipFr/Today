@@ -233,9 +233,12 @@ if(token !== "undefined" && token !== "null" && token && navigator.onLine) {
 				promises.push(getDate(url, token, token_type));
 			});
 
-			Promise.all(promises).then(data => {
+			Promise.all(promises).then(async data => {
 
 				// Fixed empty days breaking everything
+
+				let milestones = await getMilestones(whatUser);
+				console.log(milestones);
 
 				data.forEach(e => {
 					if(!e.data) {
@@ -253,11 +256,25 @@ if(token !== "undefined" && token !== "null" && token && navigator.onLine) {
 
 				let newArr = [...data[1].data, ...data[0].data, ...data[2].data];
 
+				newArr.forEach(log => {
+					if(!log.type) {
+						log.type = "log";
+					}
+				});
+
+				newArr = [...newArr, ...milestones.data];
+
+				newArr.forEach(log => {
+					if(!log.type) {
+						log.type = "milestone";
+					}
+				});
+
 				newArr = newArr.sort((a, b) => {
 					return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
 				});
 
-				// console.log(newArr);
+				console.log(newArr);
 				
 				newArr.forEach(task => {
 
@@ -277,75 +294,128 @@ if(token !== "undefined" && token !== "null" && token && navigator.onLine) {
 					} else {
 						toAddElement = null;
 					}
-					
-					let index = 0;
 
-					task.project_set.forEach(project => {
-						let id = project.id;
-						if(!productLinks[id]) {
-							f(`${API}projects/${id}/related/`, {
-								headers: {
-									"Content-Type": "application/json;charset=UTF-8",
-									"Accept": "application/json, text/plain, */*",
-									"Authorization": localStorage.getItem("token_type") + " " + token
-								}
-							}).then(data => {
-								if(data.products && data.products[0]) {
-									product = data.products[0];
-									productLinks[id] = product.slug;
-									Object.values(product.projects).forEach(tag => {
-										tag = tag.name.toLowerCase();
-										productLinks[tag] = product.slug;
-									});
-								} else {
-									delete productLinks[id];
-								}
-							});	
-						}
+					if(task.type == "log") {
 						
-						productLinks[id] = "WAITING";
+						let index = 0;
 
-					});
+						task.project_set.forEach(project => {
+							let id = project.id;
+							if(!productLinks[id]) {
+								f(`${API}projects/${id}/related/`, {
+									headers: {
+										"Content-Type": "application/json;charset=UTF-8",
+										"Accept": "application/json, text/plain, */*",
+										"Authorization": localStorage.getItem("token_type") + " " + token
+									}
+								}).then(data => {
+									if(data.products && data.products[0]) {
+										product = data.products[0];
+										productLinks[id] = product.slug;
+										Object.values(product.projects).forEach(tag => {
+											tag = tag.name.toLowerCase();
+											productLinks[tag] = product.slug;
+										});
+									} else {
+										delete productLinks[id];
+									}
+								});	
+							}
+							
+							productLinks[id] = "WAITING";
 
-					task.content = task.content.split(" ");
-					task.content.forEach(word => {
-						if(word.startsWith("#") && word.length > 1) {
-							task.content[index] = `<a class="mainAnchor" onclick="newProjectWindow('${word}')"><span class="product">${word}</span></a>`
+						});
+
+						task.content = task.content.split(" ");
+						task.content.forEach(word => {
+							if(word.startsWith("#") && word.length > 1) {
+								task.content[index] = `<a class="mainAnchor" onclick="newProjectWindow('${word}')"><span class="product">${word}</span></a>`
+							}
+							if(word.startsWith("http://") || word.startsWith("https://")) {
+								task.content[index] = `<a target="_blank" class="linkAnchor" href="${word}"><span class="link">${word}</span></a>`
+							}
+							index++
+						});
+						task.content = task.content.join(" ");
+
+						let whatIcon = {
+							true: '<svg aria-hidden="true" data-prefix="fas" data-icon="check-circle" class="svg-inline--fa fa-check-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="var(--main)" d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"></path></svg>',
+							false: `<svg aria-hidden="true" data-makerlog-id="${task.id}" onclick="markAsDone('${task.id}', '${whatUser}')" data-prefix="fas" data-icon="circle" class="todoIcon svg-inline--fa fa-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="var(--todo)" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path></svg>`
 						}
-						if(word.startsWith("http://") || word.startsWith("https://")) {
-							task.content[index] = `<a target="_blank" class="linkAnchor" href="${word}"><span class="link">${word}</span></a>`
-						}
-						index++
-					});
-					task.content = task.content.join(" ");
 
-					let whatIcon = {
-						true: '<svg aria-hidden="true" data-prefix="fas" data-icon="check-circle" class="svg-inline--fa fa-check-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="var(--main)" d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"></path></svg>',
-						false: `<svg aria-hidden="true" data-makerlog-id="${task.id}" onclick="markAsDone('${task.id}', '${whatUser}')" data-prefix="fas" data-icon="circle" class="todoIcon svg-inline--fa fa-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="var(--todo)" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path></svg>`
+						task.content = `<div class="taskContentDiv">${task.content}</div>` + getTaskExtra(task);
+
+						if(toAddElement) {
+							toAddElement.innerHTML += `
+								<div class="task">
+									<div class="taskMain">
+										<div class="taskIcon">
+											${whatIcon[task.done]}
+										</div>
+										<div class="taskContent">
+											${task.content}
+										</div>
+									</div>
+									<div class="taskAttachment">
+										${task.attachment && task.attachment.length > 0 ? '<img class="taskImage" src="' + task.attachment + '">' : ""}
+									</div>
+									<div class="taskComments" data-for-comments-task-id="${task.id}">
+										${getCommentHTML(task)}
+									</div>
+								</div>
+							`	
+						}	
+					} else if(task.type == "milestone") {
+						let index = 0;
+
+						task.body = task.body.split(/\n/g);
+						task.body = task.body.join("<br>");
+
+						task.body = task.body.split(/[\s]+/);
+						task.body.forEach(word => {
+							if(word.startsWith("#") && word.length > 1) {
+								task.body[index] = `<a class="mainAnchor" onclick="newProjectWindow('${word}')"><span class="product">${word}</span></a>`
+							}
+							if(word.startsWith("http://") || word.startsWith("https://")) {
+								task.body[index] = `<a target="_blank" class="linkAnchor" href="${word}"><span class="link">${word}</span></a>`
+							}
+							index++
+						});
+						task.body = task.body.join(" ");
+
+						let whatIcon = {
+							true: '<svg aria-hidden="true" data-prefix="fas" data-icon="check-circle" class="svg-inline--fa fa-check-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="var(--main)" d="M504 256c0 136.967-111.033 248-248 248S8 392.967 8 256 119.033 8 256 8s248 111.033 248 248zM227.314 387.314l184-184c6.248-6.248 6.248-16.379 0-22.627l-22.627-22.627c-6.248-6.249-16.379-6.249-22.628 0L216 308.118l-70.059-70.059c-6.248-6.248-16.379-6.248-22.628 0l-22.627 22.627c-6.248 6.248-6.248 16.379 0 22.627l104 104c6.249 6.249 16.379 6.249 22.628.001z"></path></svg>',
+							false: `<svg aria-hidden="true" data-makerlog-id="${task.id}" onclick="markAsDone('${task.id}', '${whatUser}')" data-prefix="fas" data-icon="circle" class="todoIcon svg-inline--fa fa-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="var(--todo)" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8z"></path></svg>`
+						}
+
+						task.body = `<div class="taskContentDiv">${task.body}</div>` + getTaskExtra(task);
+
+						if(toAddElement) {
+							toAddElement.innerHTML += `
+								<div class="task milestone">
+									<div class="taskMain">
+										<div class="taskIcon">
+											<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-star"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+										</div>
+										<div class="taskContent">
+											<div class="taskContentLeft">
+												<div class="taskContentSubTop">
+													<span class="secondary">Milestone</span>
+												</div>
+												<h2>${task.title}</h2>
+												<span>${task.body}</span>
+											</div>
+										</div>
+									</div>
+									<div class="taskComments" data-for-comments-task-id="${task.id}">
+										${getCommentHTML(task)}
+									</div>
+								</div>
+							`	
+						}	
 					}
 
-					task.content = `<div class="taskContentDiv">${task.content}</div>` + getTaskExtra(task);
-
-					if(toAddElement) {
-						toAddElement.innerHTML += `
-							<div class="task">
-								<div class="taskMain">
-									<div class="taskIcon">
-										${whatIcon[task.done]}
-									</div>
-									<div class="taskContent">
-										${task.content}
-									</div>
-								</div>
-								<div class="taskAttachment">
-									${task.attachment && task.attachment.length > 0 ? '<img class="taskImage" src="' + task.attachment + '">' : ""}
-								</div>
-								<div class="taskComments" data-for-comments-task-id="${task.id}">
-									${getCommentHTML(task)}
-								</div>
-							</div>
-						`	
-					}
+					
 				});
 
 				if(document.querySelector(`[data-cardID="${whatUser}"] .todayCard .logDiv`).innerHTML.length == 0) {
@@ -400,6 +470,17 @@ if(token !== "undefined" && token !== "null" && token && navigator.onLine) {
 		}).then(data => {
 			loadUser(whatUser);
 		})
+	}
+
+	function getMilestones(whatUser) {
+		return new Promise((resolve, reject) => {
+			// https://api.getmakerlog.com/users/834/stream/milestones/
+			fetch(`${API}users/${user[whatUser].id}/stream/milestones/`).then(d => {
+				return d.json();
+			}).then(d => {
+				resolve(d);
+			});
+		});
 	}
 
 } else if(navigator.onLine) {
@@ -713,8 +794,17 @@ function getTaskExtra(data) {
 
 function getCommentHTML(task) {
 	if(task.comment_count > 0) {
+		console.log(task);
+
+		let url = "";
+		if(task.type == "log") {
+			url = `${API}tasks/${task.id}/comments/`;
+		} else if(task.type == "milestone") {
+			https://api.getmakerlog.com/milestones/jip-yet-another-milestone/comments/
+			url = `${API}milestones/${task.slug}/comments/`
+		}
 		
-		f(`${API}tasks/${task.id}/comments`).then(data => {
+		f(url).then(data => {
 
 			newEl = document.querySelector(`[data-for-comments-task-id="${task.id}"]`);
 			newEl.innerHTML = "";
@@ -757,7 +847,7 @@ function getCommentHTML(task) {
 				
 				newEl.innerHTML += `
 					<div class="commentInput">
-						<input class="newComment" onkeyup="keyupComment(event)" type="text" placeholder="New comment..." data-task-id="${task.id}" data-whatUser="${whatUser}">
+						<input class="newComment" onkeyup="keyupComment(event, this)" data-log-type="${task.type.trim()}" type="text" placeholder="New comment..." data-task-id="${task.id}" ${task.type == 'milestone' ? `data-milestone-slug="${task.slug}"` : ''} data-whatUser="${whatUser}">
 					</div>
 				`
 				
@@ -775,7 +865,7 @@ function getCommentHTML(task) {
 
 }
 
-function keyupComment(evt) {
+function keyupComment(evt, el) {
 	
 	console.log(evt);
 
@@ -790,22 +880,43 @@ function keyupComment(evt) {
 
 		token = JSON.parse(localStorage.getItem("token"))[whatUser];
 		token_type = JSON.parse(localStorage.getItem("token_type"))[whatUser];
-						
-		f(`${API}tasks/${evt.srcElement.getAttribute("data-task-id")}/comments/`, {
-			method: "POST",
-			body: JSON.stringify({
-				content: v
-			}),
-			headers: {
-				"Content-Type": "application/json;charset=UTF-8",
-				"Accept": "application/json, text/plain, */*",
-				"Authorization": token_type + " " + token
+		
+		new Promise((resolve, reject) => {
+			if(el.getAttribute("data-log-type") == "milestone") {
+				// https://api.getmakerlog.com/milestones/jip-yet-another-milestone/comments/
+				f(`${API}milestones/${evt.srcElement.getAttribute("data-milestone-slug")}/comments/`, {
+					method: "POST",
+					body: JSON.stringify({
+						content: v
+					}),
+					headers: {
+						"Content-Type": "application/json;charset=UTF-8",
+						"Accept": "application/json, text/plain, */*",
+						"Authorization": token_type + " " + token
+					}
+				}).then(d => {
+					resolve(d);
+				});
+			} else if(el.getAttribute("data-log-type") == "log") {
+				f(`${API}tasks/${evt.srcElement.getAttribute("data-task-id")}/comments/`, {
+					method: "POST",
+					body: JSON.stringify({
+						content: v
+					}),
+					headers: {
+						"Content-Type": "application/json;charset=UTF-8",
+						"Accept": "application/json, text/plain, */*",
+						"Authorization": token_type + " " + token
+					}
+				}).then(d => {
+					resolve(d);
+				});
 			}
 		}).then(d => {
 			loadUser(whatUser);
 		});
-	}
-				
+
+	}		
 }
 
 function dropHandler(evt) {
