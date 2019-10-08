@@ -20,6 +20,36 @@
 	--todo: #f39c12;
 	--link: #00B77A;
 }
+@media (prefers-color-scheme: dark) { 
+	body[data-theme] {
+		--body: #1f1f1f;
+		--text: white;
+		--text_secondary: rgba(255, 255, 255, 0.6);
+		--main: #5855ff;
+		--card_bg: #191919;
+		--border: rgba(255, 255, 255, 0.1);
+		--todo: #f39c12;
+		--link: #00B77A;
+	}
+	.theme_setting {
+		display: none !important;
+	}
+}
+@media (prefers-color-scheme: light) { 
+	body[data-theme] {
+		--body: #eee;
+		--text: #191919;
+		--text_secondary: rgba(0, 0, 0, 0.6);
+		--main: #00B77A;
+		--card_bg: white;
+		--border: rgba(0, 0, 0, 0.1);
+		--todo: #f39c12;
+		--link: #00B77A;
+	}
+	.theme_setting {
+		display: none !important;
+	}
+}
 .fw {
 	width: 100%;
 }

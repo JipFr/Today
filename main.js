@@ -611,7 +611,7 @@ function openSettings() {
 				<span>Settings</span>
 				<div class="closeSettings" onclick="removeOverlays();">X</div>
 			</h1>
-			<div class="setting">
+			<div class="setting theme_setting">
 				<h2>Theme:</h2>
 				<select class="theme" onchange="setTheme(this.value)">
 					<option value="current">Select theme</option>
@@ -624,6 +624,7 @@ function openSettings() {
 				<h2>General settings:</h2>
 				<div class="settingSpan"><input type="checkbox" ${getSetting("display-rld") == true ? "checked" : ""} data-setting="display-rld" onchange="alterSetting(this.getAttribute('data-setting'), this.checked)"> <span class="settingInnerSpan">Display reload button</span></div>
 				<div class="settingSpan"><input type="checkbox" ${getSetting("display-gear") == true ? "checked" : ""} data-setting="display-gear" onchange="alterSetting(this.getAttribute('data-setting'), this.checked)"> <span class="settingInnerSpan">Always show settings button</span></div>
+				<div class="settingSpan"><input type="checkbox" ${getSetting("return-todo") == true ? "checked" : ""} data-setting="return-todo" onchange="alterSetting(this.getAttribute('data-setting'), this.checked)"> <span class="settingInnerSpan">Pressing return creates the opposite type of task from the default</span></div>
 			</div>
 
 			<div class="setting">
@@ -1190,3 +1191,14 @@ function getNotifHTML(notifs) {
 	return str;
 }
 
+
+
+function isTodo(event) {
+	// It's actually "is done" but cache issues prevented me from renaming this function
+	if(getSetting("return-todo") == true && typeof event.shiftKey !== "undefined") {
+		return event.shiftKey;
+	} else if(typeof event.shiftKey !== "undefined") {
+		return !event.shiftKey;
+	}
+	return true;
+}
